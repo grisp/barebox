@@ -16,8 +16,8 @@
 #include "imx6ul-phytec-phycore-som.dtsi"
 
 / {
-	model = "Phytec phyCORE-i.MX6 Ultra Lite SOM";
-	compatible = "phytec,imx6ul-pcl063", "fsl,imx6ul";
+	model = "Phytec phyCORE-i.MX6 Ultra Lite SOM with NAND";
+	compatible = "phytec,imx6ul-pcl063-nand", "fsl,imx6ul";
 };
 
 &fec1 {
