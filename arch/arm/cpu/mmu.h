@@ -3,6 +3,7 @@
 
 #include <asm/pgtable.h>
 #include <linux/sizes.h>
+#include <asm/system_info.h>
 
 #define PGDIR_SHIFT	20
 #define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
@@ -60,8 +61,13 @@ create_sections(uint32_t *ttb, unsigned long first,
 
 static inline void create_flat_mapping(uint32_t *ttb)
 {
+	unsigned int flags = PMD_SECT_DEF_UNCACHED;
+
+	if (cpu_architecture() >= CPU_ARCH_ARMv7)
+		flags |= PMD_SECT_XN;
+
 	/* create a flat mapping using 1MiB sections */
-	create_sections(ttb, 0, 0xffffffff, PMD_SECT_DEF_UNCACHED);
+	create_sections(ttb, 0, 0xffffffff, flags);
 }
 
 #endif /* __ARM_MMU_H */
