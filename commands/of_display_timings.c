@@ -99,13 +99,13 @@ static int do_of_display_timings(int argc, char *argv[])
 			list = 1;
 			break;
 		case 'f':
-			dtbfile = optarg;
+			dtbfile = xstrdup(optarg);
 			break;
 		case 's':
 			selected = 1;
 			break;
 		case 'c':
-			compatible = optarg;
+			compatible = xstrdup(optarg);
 			break;
 		case 'S':
 			timingpath = xzalloc(strlen(optarg) + 1);
