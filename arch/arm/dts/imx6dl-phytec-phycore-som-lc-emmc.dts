@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2015 PHYTEC Messtechnik GmbH,
- * Author: Stefan Christ <s.christ@phytec.de>
+ * Copyright (C) 2018 PHYTEC Messtechnik GmbH,
+ * Author: Stefan Riedmueller <s.riedmueller@phytec.de>
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -17,7 +17,7 @@
 #include "imx6qdl-phytec-phycore-som.dtsi"
 
 / {
-	model = "Phytec phyCORE-i.MX6 DualLite/SOLO with eMMC";
+	model = "Phytec phyCORE-i.MX6 DualLite/SOLO with eMMC low-cost";
 	compatible = "phytec,imx6dl-pcm058-emmc", "fsl,imx6dl";
 };
 
@@ -30,7 +30,7 @@
 };
 
 &ethphy {
-	max-speed = <1000>;
+	max-speed = <100>;
 };
 
 &fec {
