@@ -7,7 +7,7 @@ fi
 if [ $bootsource = mmc ]; then
 	global.boot.default="mmc nand spi net"
 elif [ $bootsource = nand ]; then
-	global.boot.default="nand spi mmc net"
+	global.boot.default="bootchooser nand spi mmc net"
 elif [ $bootsource = spi ]; then
 	global.boot.default="spi nand mmc net"
 elif [ $bootsource = net ]; then
