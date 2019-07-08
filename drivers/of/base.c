@@ -2474,6 +2474,21 @@ struct device_node *of_graph_get_remote_port(const struct device_node *node)
 }
 EXPORT_SYMBOL(of_graph_get_remote_port);
 
+struct device_node *of_graph_get_remote_port_from(
+				const struct device_node *node,
+				struct device_node *root)
+{
+	struct device_node *np;
+
+	/* Get remote endpoint node. */
+	np = of_parse_phandle_from(node, root, "remote-endpoint", 0);
+	if (!np)
+		return NULL;
+
+	return np->parent;
+}
+EXPORT_SYMBOL(of_graph_get_remote_port_from);
+
 int of_graph_port_is_available(struct device_node *node)
 {
 	struct device_node *endpoint;
