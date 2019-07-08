@@ -35,9 +35,11 @@
 #define PHYCAM_P		"phyCAM-P"
 #define PHYCAM_S		"phyCAM-S+"
 
-#define PHYTEC_MEDIABUS		"/phytec_mediabus"
-#define CAM_PORT_0		"/soc/ipu@02400000/port@0/endpoint/"
-#define CAM_PORT_1		"/soc/ipu@02800000/port@1/endpoint/"
+#define DESERIALIZER_PORT_0	"/csi_deserializer0"
+#define DESERIALIZER_PORT_1	"/csi_deserializer1"
+
+#define CAM_PORT_0		"/soc/aips-bus@02000000/iomuxc-gpr@020e0000/ipu1_csi0_mux/port@1/endpoint"
+#define CAM_PORT_1		"/soc/aips-bus@02000000/iomuxc-gpr@020e0000/ipu2_csi1_mux/port@1/endpoint"
 
 struct camera_info {
 	int type;
@@ -79,6 +81,9 @@ static const struct phytec_camera phytec_cameras[] = {
 	}, {
 		.name = "VM-012-COL",
 		.compatible = "phytec,vm012c",
+	}, {
+		.name = "VM-050",
+		.compatible = "phytec,vm050",
 	}
 };
 
@@ -188,7 +193,50 @@ static int of_set_phandle_to_remote_endpoint(struct device_node *cam,
 	return ret;
 }
 
-static int set_camera_remote_endpoint(struct device_node *root,
+static int set_phycam_s_remote_endpoint(struct device_node *root,
+		struct device_node *cam, struct camera_info *cam_info)
+{
+	struct device_node *deserializer = NULL, *port = NULL;
+	struct device_node *cam_endpoint = NULL;
+	char *path;
+
+	if (cam_info->port == 0) {
+		path = DESERIALIZER_PORT_0;
+		port = of_find_node_by_path_from(root, CAM_PORT_0);
+	} else if (cam_info->port == 1) {
+		path = DESERIALIZER_PORT_1;
+		port = of_find_node_by_path_from(root, CAM_PORT_1);
+	} else
+		return -EINVAL;
+
+	if (!port) {
+		printf("Port not found\n");
+		return -EINVAL;
+	}
+
+	deserializer = of_find_node_by_path_from(root, path);
+	if (!deserializer) {
+		pr_err("Path to deserializer is not vaild.\n");
+		return -EINVAL;
+	}
+
+	of_set_property(deserializer, "phytec,phycam-s", NULL, 0, 1);
+
+	cam_endpoint = of_graph_get_next_endpoint(cam, NULL);
+	if (!cam_endpoint) {
+		pr_err("Path to camera endpoint is not vaild.\n");
+		return -EINVAL;
+	}
+
+	if (of_set_phandle_to_remote_endpoint(cam_endpoint, port) < 0) {
+		pr_err("Could not set remote endpoint\n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int set_phycam_p_remote_endpoint(struct device_node *root,
 		struct device_node *cam, struct camera_info *cam_info)
 {
 	struct device_node *port = NULL, *camendpoint = NULL;
@@ -223,7 +271,7 @@ static int set_camera_remote_endpoint(struct device_node *root,
 static int change_camera(struct device_node *root, void *context)
 {
 	struct camera_info *cam_info = (struct camera_info *)context;
-	struct device_node *cam = NULL, *mediabus = NULL;
+	struct device_node *cam = NULL;
 	int ret = 0, i2c_address;
 
 	cam = find_camera(root, phytec_cameras[cam_info->type].name,
@@ -233,10 +281,6 @@ static int change_camera(struct device_node *root, void *context)
 			phytec_cameras[cam_info->type].name);
 		return -1;
 	}
-
-	ret = set_camera_remote_endpoint(root, cam, cam_info);
-	if (ret < 0)
-		return ret;
 
 	if (cam_info->i2c_address > 0) {
 		i2c_address = cpu_to_be32(cam_info->i2c_address);
@@ -257,26 +301,14 @@ static int change_camera(struct device_node *root, void *context)
 	}
 
 	if (cam_info->phycams) {
-		char *type;
-
-		mediabus = of_find_node_by_path_from(root, PHYTEC_MEDIABUS);
-		if (!mediabus) {
-			pr_err("Path to mediabus is not vaild.\n");
-			return -EINVAL;
-		}
-
-		if (cam_info->port == 0)
-			type = "phytec,cam0_serial";
-		else if (cam_info->port == 1)
-			type = "phytec,cam1_serial";
-		else
-			return -EINVAL;
-
-		ret = of_set_property(mediabus, type, NULL, 0, 1);
-		if (ret < 0) {
-			pr_err("Could not set property\n");
+		ret = set_phycam_s_remote_endpoint(root, cam, cam_info);
+		if (ret < 0)
 			return ret;
-		}
+
+	} else {
+		ret = set_phycam_p_remote_endpoint(root, cam, cam_info);
+		if (ret < 0)
+			return ret;
 	}
 
 	ret = of_device_enable(cam);
