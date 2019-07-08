@@ -287,7 +287,7 @@ static void eth_of_fixup_node(struct device_node *root,
 			      const char *node_path, int ethid,
 			      const u8 ethaddr[ETH_ALEN])
 {
-	struct device_node *node;
+	struct device_node *node = NULL;
 	int ret;
 
 	if (!is_valid_ether_addr(ethaddr)) {
@@ -296,9 +296,10 @@ static void eth_of_fixup_node(struct device_node *root,
 		return;
 	}
 
-	if (node_path) {
+	if (node_path)
 		node = of_find_node_by_path_from(root, node_path);
-	} else {
+
+	if (!node) {
 		char eth[12];
 		sprintf(eth, "ethernet%d", ethid);
 		node = of_find_node_by_alias(root, eth);
