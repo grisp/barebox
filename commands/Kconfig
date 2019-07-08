@@ -2083,6 +2083,17 @@ config CMD_OF_FIXUP_STATUS
 	  Register a fixup to enable or disable a device tree node.
 	  Nodes are enabled on default. Disabled with -d.
 
+config CMD_OF_CAMERA_SELECTION
+	tristate
+	select OFTREE
+	prompt "of_camera_selection"
+	help
+	  Selects a Phytec camera on the following boards
+	  - phyBOARD-SUBRA-i.MX6
+	  - phyFLEX-i.MX6
+	  - phyCARD-i.MX6
+	  - phyBOARD-MIRA-i.MX6
+
 config CMD_OFTREE
 	tristate
 	select OFTREE
