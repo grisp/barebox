@@ -252,7 +252,9 @@ static int physom_imx6_devices_init(void)
 	defaultenv_append_directory(defaultenv_physom_imx6);
 
 	/* Overwrite file /env/init/automount */
-	if (of_machine_is_compatible("phytec,imx6q-pfla02")
+	if (of_machine_is_compatible("embeddedbrains,grisp2")) {
+		defaultenv_append_directory(defaultenv_physom_imx6ull_grisp2);
+	} else if (of_machine_is_compatible("phytec,imx6q-pfla02")
 		|| of_machine_is_compatible("phytec,imx6dl-pfla02")
 		|| of_machine_is_compatible("phytec,imx6s-pfla02")
 		|| of_machine_is_compatible("phytec,imx6q-pcaaxl3")) {

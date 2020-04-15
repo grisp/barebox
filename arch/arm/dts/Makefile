@@ -69,7 +69,8 @@ lwl-dtb-$(CONFIG_MACH_PHYTEC_SOM_IMX6) += imx6q-phytec-phycard.dtb.o \
 				imx6ul-phytec-phycore-som-nand.dtb.o \
 				imx6ull-phytec-phycore-som-lc-nand.dtb.o \
 				imx6ull-phytec-phycore-som-nand.dtb.o \
-				imx6ull-phytec-phycore-som-emmc.dtb.o
+				imx6ull-phytec-phycore-som-emmc.dtb.o \
+				imx6ull-grisp2.dtb.o
 lwl-dtb-$(CONFIG_MACH_PHYTEC_PHYCORE_IMX7) += imx7d-phyboard-zeta.dtb.o
 lwl-dtb-$(CONFIG_MACH_PHYTEC_SOM_IMX8MQ) += imx8mq-phytec-phycore-som.dtb.o
 lwl-dtb-$(CONFIG_MACH_PLATHOME_OPENBLOCKS_AX3) += armada-xp-openblocks-ax3-4-bb.dtb.o

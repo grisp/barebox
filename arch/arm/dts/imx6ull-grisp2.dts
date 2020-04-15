@@ -1,0 +1,145 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-2-Clause)
+/*
+ * Copyright (C) 2020 embedded brains GmbH.
+ */
+/*
+ * This device tree only includes peripherals necessary for the boot loader.
+ */
+
+/dts-v1/;
+#include <arm/imx6ull.dtsi>
+#include "imx6ul-phytec-phycore-som.dtsi"
+
+/ {
+	model = "GRiSP2";
+	compatible = "embeddedbrains,grisp2", "phytec,imx6ul-pcl063-nand", "fsl,imx6ull";
+
+	gpio_leds_grisp2: leds {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpioleds_grisp2>;
+		compatible = "gpio-leds";
+
+		grisp-rgb1-red {
+			gpios = <&gpio5 0 GPIO_ACTIVE_HIGH>;
+		};
+		grisp-rgb1-green {
+			gpios = <&gpio5 1 GPIO_ACTIVE_HIGH>;
+		};
+		grisp-rgb1-blue {
+			gpios = <&gpio5 2 GPIO_ACTIVE_HIGH>;
+		};
+		grisp-rgb2-red {
+			gpios = <&gpio5 3 GPIO_ACTIVE_HIGH>;
+		};
+		grisp-rgb2-green {
+			gpios = <&gpio5 5 GPIO_ACTIVE_HIGH>;
+		};
+		grisp-rgb2-blue {
+			gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	reg_usb1: regulator-usb1 {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_usb1_en>;
+		gpio = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+
+		regulator-name = "usb1";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+
+		status = "okay";
+	};
+};
+
+&fec1 {
+	status = "okay";
+};
+
+&gpmi {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&usbotg1 {
+	pinctrl-names = "default";
+	dr_mode = "host";
+	vbus-supply = <&reg_usb1>;
+	status = "okay";
+};
+
+&usdhc1 {
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&usdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2_grisp>;
+	bus-width = <8>;
+	max-frequency = <50000000>;
+	non-removable;
+	cap-mmc-hw-reset;
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_usb1_en: usb1engrp {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO00__GPIO1_IO00	0x08
+		>;
+	};
+
+	pinctrl_usb2_en: usb2engrp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA11__GPIO3_IO16	0x08
+		>;
+	};
+
+	/delete-node/ pinctrl_usdhc2;
+
+	pinctrl_usdhc2_grisp: usdhc2-grp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA13__USDHC2_RESET_B	0x17059
+			MX6UL_PAD_LCD_DATA18__USDHC2_CMD	0x17059
+			MX6UL_PAD_LCD_DATA19__USDHC2_CLK	0x17059
+			MX6UL_PAD_LCD_DATA20__USDHC2_DATA0	0x17059
+			MX6UL_PAD_LCD_DATA21__USDHC2_DATA1	0x17059
+			MX6UL_PAD_LCD_DATA22__USDHC2_DATA2	0x17059
+			MX6UL_PAD_LCD_DATA23__USDHC2_DATA3	0x17059
+			MX6UL_PAD_LCD_DATA14__USDHC2_DATA4	0x17059
+			MX6UL_PAD_LCD_DATA15__USDHC2_DATA5	0x17059
+			MX6UL_PAD_LCD_DATA16__USDHC2_DATA6	0x17059
+			MX6UL_PAD_LCD_DATA17__USDHC2_DATA7	0x17059
+		>;
+	};
+
+	/delete-node/ gpioledssomgrp;
+};
+
+&iomuxc_snvs {
+	pinctrl_gpioleds_som: gpioledssomgrp {
+		fsl,pins = <
+			MX6ULL_PAD_SNVS_TAMPER4__GPIO5_IO04	0x0b0b0
+		>;
+	};
+
+	pinctrl_gpioleds_grisp2: gpioledsgrisp2grp {
+		fsl,pins = <
+			MX6UL_PAD_SNVS_TAMPER0__GPIO5_IO00	0x00088
+			MX6UL_PAD_SNVS_TAMPER1__GPIO5_IO01	0x00088
+			MX6UL_PAD_SNVS_TAMPER2__GPIO5_IO02	0x00088
+			MX6UL_PAD_SNVS_TAMPER3__GPIO5_IO03	0x00088
+			MX6UL_PAD_SNVS_TAMPER5__GPIO5_IO05	0x00088
+			MX6UL_PAD_SNVS_TAMPER9__GPIO5_IO09	0x00088
+		>;
+	};
+};
