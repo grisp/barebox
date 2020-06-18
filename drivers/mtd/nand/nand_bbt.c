@@ -607,8 +607,14 @@ static int search_bbt(struct mtd_info *mtd, uint8_t *buf, struct nand_bbt_descr 
 			int actblock = startblock + dir * block;
 			loff_t offs = (loff_t)actblock << this->bbt_erase_shift;
 
-			/* Read first page */
-			scan_read(mtd, buf, offs, mtd->writesize, td);
+			/* Read first page including oob */
+			scan_read_oob(mtd, buf, offs, scanlen);
+
+			/* Skip blocks which are marked bad */
+			if (buf[mtd->writesize] == 0x00) {
+				continue;
+			}
+
 			if (!check_pattern(buf, scanlen, mtd->writesize, td)) {
 				td->pages[i] = actblock << blocktopage;
 				if (td->options & NAND_BBT_VERSION) {
