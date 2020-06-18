@@ -1124,7 +1124,7 @@ static void verify_bbt_descr(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 {
 	struct nand_chip *this = mtd->priv;
-	int len, res = 0;
+	int len, res;
 	uint8_t *buf;
 	struct nand_bbt_descr *td = this->bbt_td;
 	struct nand_bbt_descr *md = this->bbt_md;
@@ -1145,10 +1145,9 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 	if (!td) {
 		if ((res = nand_memory_bbt(mtd, bd))) {
 			pr_err("nand_bbt: can't scan flash and build the RAM-based BBT\n");
-			kfree(this->bbt);
-			this->bbt = NULL;
+			goto err;
 		}
-		return res;
+		return 0;
 	}
 	verify_bbt_descr(mtd, td);
 	verify_bbt_descr(mtd, md);
@@ -1158,9 +1157,8 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 	len += (len >> this->page_shift) * mtd->oobsize;
 	buf = vmalloc(len);
 	if (!buf) {
-		kfree(this->bbt);
-		this->bbt = NULL;
-		return -ENOMEM;
+		res = -ENOMEM;
+		goto err;
 	}
 
 	/* Is the bbt at a given page? */
@@ -1172,6 +1170,8 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 	}
 
 	res = check_create(mtd, buf, bd);
+	if (res)
+		goto err;
 
 	/* Prevent the bbt regions from erasing / writing */
 	mark_bbt_region(mtd, td);
@@ -1179,6 +1179,11 @@ int nand_scan_bbt(struct mtd_info *mtd, struct nand_bbt_descr *bd)
 		mark_bbt_region(mtd, md);
 
 	vfree(buf);
+	return 0;
+
+err:
+	kfree(this->bbt);
+	this->bbt = NULL;
 	return res;
 }
 
