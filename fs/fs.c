@@ -2982,7 +2982,7 @@ void cdev_create_default_automount(struct cdev *cdev)
 	char *path, *cmd;
 
 	path = basprintf("/mnt/%s", cdev->name);
-	cmd = basprintf("mount %s", cdev->name);
+	cmd = basprintf("mount %s %s", cdev->name, path);
 
 	make_directory(path);
 	automount_add(path, cmd);
