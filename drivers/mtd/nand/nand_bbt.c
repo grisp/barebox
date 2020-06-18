@@ -346,7 +346,7 @@ static int scan_read_oob(struct mtd_info *mtd, uint8_t *buf, loff_t offs,
 		}
 
 		buf += mtd->oobsize + mtd->writesize;
-		len -= mtd->writesize;
+		len = len < mtd->writesize ? 0 : len - mtd->writesize;
 		offs += mtd->writesize;
 	}
 	return ret;
