@@ -741,15 +741,15 @@ static void mark_bbt_block_bad(struct mtd_info *mtd,
 	loff_t to;
 	int res;
 
-	bbt_mark_entry(this, block, BBT_BLOCK_WORN);
+	td->pages[chip] = -1;
 
 	to = (loff_t)block << this->bbt_erase_shift;
-	res = this->block_markbad(mtd, to);
+	res = mtd->block_markbad(mtd, to);
 	if (res)
 		pr_warn("nand_bbt: error %d while marking block %d bad\n",
 			res, block);
 
-	td->pages[chip] = -1;
+	bbt_mark_entry(this, block, BBT_BLOCK_WORN);
 }
 
 /**
