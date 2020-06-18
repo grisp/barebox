@@ -26,9 +26,10 @@
 
 static int printed;
 static int progress_max;
+static int shift;
 static int spin;
 
-void show_progress(int now)
+void show_progress(loff_t now)
 {
 	char spinchr[] = "\\|/-";
 
@@ -37,8 +38,10 @@ void show_progress(int now)
 		return;
 	}
 
-	if (progress_max && progress_max != FILESIZE_MAX) {
-		uint64_t tmp = (int64_t)now * HASHES_PER_LINE;
+	now = now >> shift;
+
+	if (progress_max) {
+		uint64_t tmp = now * HASHES_PER_LINE;
 		do_div(tmp, progress_max);
 		now = tmp;
 	}
@@ -51,12 +54,23 @@ void show_progress(int now)
 	}
 }
 
-void init_progression_bar(int max)
+void init_progression_bar(loff_t max)
 {
 	printed = 0;
-	progress_max = max;
 	spin = 0;
-	if (progress_max && progress_max != FILESIZE_MAX)
+
+	if (max == FILESIZE_MAX)
+		max = 0;
+
+	shift = fls64(max) - 32;
+
+	if (shift > 0)
+		max = max >> shift;
+	else
+		shift = 0;
+
+	progress_max = max;
+	if (progress_max)
 		printf("\t[%*s]\r\t[", HASHES_PER_LINE, "");
 	else
 		printf("\t");
