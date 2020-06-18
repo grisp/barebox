@@ -31,7 +31,6 @@
 #include <common.h>
 #include <fs.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <crc.h>
 #include <stdlib.h>
 #include <clock.h>
@@ -257,7 +256,7 @@ static int flash_image(struct ubiformat_args *args, struct mtd_info *mtd,
 				printf("\n");
 			sys_errmsg("failed to erase eraseblock %d", eb);
 
-			if (err != EIO)
+			if (err != -EIO)
 				goto out_close;
 
 			if (mark_bad(args, mtd, si, eb))
@@ -306,7 +305,7 @@ static int flash_image(struct ubiformat_args *args, struct mtd_info *mtd,
 		if (err) {
 			sys_errmsg("cannot write eraseblock %d", eb);
 
-			if (err != EIO)
+			if (err != -EIO)
 				goto out_close;
 
 			err = mtd_peb_torture(mtd, eb);
@@ -387,7 +386,7 @@ static int format(struct ubiformat_args *args, struct mtd_info *mtd,
 				printf("\n");
 
 			sys_errmsg("failed to erase eraseblock %d", eb);
-			if (err != EIO)
+			if (err != -EIO)
 				goto out_free;
 
 			if (mark_bad(args, mtd, si, eb))
@@ -419,7 +418,7 @@ static int format(struct ubiformat_args *args, struct mtd_info *mtd,
 			sys_errmsg("cannot write EC header (%d bytes buffer) to eraseblock %d",
 				   write_size, eb);
 
-			if (errno != EIO) {
+			if (err != -EIO) {
 				if (args->subpage_size != mtd->writesize)
 					normsg("may be sub-page size is incorrect?");
 				goto out_free;
